@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="TestHibernate" default="build" basedir=".">
+
+    <property name="srcDir" value="src"/>
+    <property name="buildDir" value="out/production"/>
+    <property name="libDir" value="lib"/>
+    <!-- <property name="hibernate" value="${libDir}/hibernate"/> -->
+    <!-- <property name="junit" value="${libDir}/junit"/> -->
+    <!-- <property name="mysql" value="${libDir}/mysql"/> -->
+
+    <fail message="Ant 1.10.4+ is required!">
+        <condition>
+            <not>
+                <antversion atleast="1.10.4"/>
+            </not>
+        </condition>
+    </fail>
+
+    <path id="compile.classpath">
+        <fileset dir="${libDir}/hibernate" includes="*.jar"/>
+        <fileset dir="${libDir}/junit">
+            <include name="junit-4.13.jar"/>
+            <include name="hamcrest-core-1.3.jar"/>
+        </fileset>
+        <fileset dir="${libDir}/mysql" includes="*.jar"/>
+        <fileset dir="${libDir}/ant" includes="*.jar" />
+    </path>
+
+    <path id="test.classpath">
+        <fileset dir="${libDir}/hibernate" includes="*.jar"/>
+        <fileset dir="${libDir}/junit">
+            <include name="junit-4.13.jar"/>
+            <include name="hamcrest-core-1.3.jar"/>
+        </fileset>
+        <fileset dir="${libDir}/mysql" includes="*.jar"/>
+    </path>
+
+    <path id="build.classpath">
+        <fileset dir="${libDir}/hibernate" includes="*.jar"/>
+        <fileset dir="${libDir}/junit" includes="*.jar"/>
+        <fileset dir="${libDir}/mysql" includes="*.jar"/>
+    </path>
+
+    <target name="build" description="clean build" depends="clean, test" />
+
+    <target name="clean">
+        <delete dir="${buildDir}"/>
+    </target>
+
+    <target name="init">
+        <mkdir dir="${buildDir}/wjm"/>
+        <mkdir dir="${buildDir}/test"/>
+        <mkdir dir="${buildDir}/test-report"/>
+    </target>
+
+    <target name="compile" depends="init">
+        <javac destdir="${buildDir}" srcdir="${srcDir}" classpathref="build.classpath" includeantruntime="false"/>
+        <javac destdir="${buildDir}" srcdir="${srcDir}" classpathref="compile.classpath" includeantruntime="false"/>
+        <copy file="${srcDir}/hibernate.cfg.xml" todir="${buildDir}"/>
+    </target>
+
+    <target name="test" depends="compile">
+        <junit printsummary="on" haltonfailure="yes" fork="true">
+            <classpath>
+                <path refid="test.classpath"/>
+                <path location="${buildDir}"/>
+            </classpath>
+            <formatter type="plain" usefile="false" />
+            <batchtest>
+                <fileset dir="${srcDir}" includes="**/*Test.java" />
+            </batchtest>
+        </junit>
+    </target>
+
+</project>
